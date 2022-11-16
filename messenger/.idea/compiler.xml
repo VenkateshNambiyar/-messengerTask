@@ -14,5 +14,9 @@
         <module name="databaseconnection" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="authentication" target="1.8" />
+      <module name="objectrelationalmapping" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

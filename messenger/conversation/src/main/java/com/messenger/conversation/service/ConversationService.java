@@ -1,11 +1,13 @@
 package com.messenger.conversation.service;
 
 import com.messenger.conversation.model.Conversation;
+import com.messenger.conversation.model.Message;
+import com.messenger.profile.model.Status;
 
-import java.util.Map;
+import java.util.Collection;
 
 /**
- * Provides the service that messenger has available for conversation
+ * Provides the conversation service
  *
  * @author venkatesh
  * @version 1.0
@@ -13,42 +15,45 @@ import java.util.Map;
 public interface ConversationService {
 
     /**
-     * Creates the new conversation
+     * Sends the message in the conversation
      *
-     * @param conversation represent {@link Conversation}
+     * @param message represent the {@link Message}
      * @return the conversation id
      */
-    Map<String, Object> createConversation(final Conversation conversation);
-
-    /**
-     * Sends the group of messages into existing conversation
-     *
-     * @param conversation represent {@link Conversation}
-     * @return the message status
-     */
-    Map<String, Object> existingConversation(final Conversation conversation);
+    Long sendMessage(final Message message);
 
     /**
      * Retrieves a particular user conversation
      *
      * @param conversationId represent the conversation id of the user
+     * @param userId         represent the user profile
      * @return the particular user conversation message
      */
-    Map<String, Object> getMessages(final Long conversationId);
+    Conversation getConversation(final Long userId, final Long conversationId);
 
     /**
      * Retrieves the all conversation of the user
      *
-     * @param profileId represent the profile id of the user
+     * @param userId represent the user profile
      * @return return the conversation
      */
-    Map<String, Object> getAllConversationIds(final Long profileId);
+    Collection<Conversation> getAllConversations(final Long userId);
 
     /**
      * Deletes the user conversation
      *
+     * @param userId         represent the user profile
      * @param conversationId represent the conversation of the user
      * @return the delete status
      */
-    Map<String, Object> deleteConversation(final Long conversationId);
+    Enum<Status> deleteConversation(final Long userId, final Long conversationId);
+
+    /**
+     * Deletes the particular message in the conversation
+     *
+     * @param conversationId represent the conversation of the user
+     * @param messageId      represent the particular message in conversation
+     * @return the delete status
+     */
+    Enum<Status> deleteMessage(final Long conversationId, final Long messageId);
 }

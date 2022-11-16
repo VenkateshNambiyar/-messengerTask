@@ -1,8 +1,7 @@
 package com.messenger.profile.service;
 
-import com.messenger.profile.model.UserDetail;
-
-import java.util.Map;
+import com.messenger.profile.model.Status;
+import com.messenger.profile.model.Profile;
 
 /**
  * Provides the service for messenger profile
@@ -15,10 +14,10 @@ public interface ProfileService {
     /**
      * Creates a new user profile
      *
-     * @param userDetail represent {@link UserDetail}
+     * @param userDetail represent {@link Profile}
      * @return the id of the user profile
      */
-    Map<String, Object> create(final UserDetail userDetail);
+    Long create(final Profile userDetail);
 
     /**
      * Retrieves a particular user profile
@@ -26,15 +25,23 @@ public interface ProfileService {
      * @param id represent the profile id of the user
      * @return the particular user profile
      */
-    Map<String, Object> get(final Long id);
+    Profile get(final Long id);
 
     /**
      * Updates a profile
      *
-     * @param userDetail represent {@link UserDetail}
+     * @param profile represent {@link Profile}
      * @return the update status
      */
-    Map<String, Object> update(final UserDetail userDetail);
+    Enum<Status> update(final Profile profile);
+
+    /**
+     * Updates a particular profile details
+     *
+     * @param profile represent {@link Profile}
+     * @return the update status
+     */
+    Enum<Status> updateParticularDetail(final Profile profile);
 
     /**
      * Deletes a profile
@@ -42,5 +49,5 @@ public interface ProfileService {
      * @param id represent the profile id of the user
      * @return the delete status
      */
-    Map<String, Object> delete(final Long id);
+    Enum<Status> delete(final Long id);
 }

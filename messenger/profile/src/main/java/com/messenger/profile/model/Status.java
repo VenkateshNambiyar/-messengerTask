@@ -8,9 +8,8 @@ package com.messenger.profile.model;
  */
 public enum Status {
 
-    SENDING,
-    SENT,
     FAILED,
     DELETED,
-    UPDATED;
+    UPDATED,
+    INFO
 }

@@ -6,17 +6,20 @@ package com.messenger.validation;
  * @author venkatesh
  * @version 1.0
  */
-public interface Profile {
+public interface ProfileValidation {
+
+    interface Insert {
+    }
 
     interface Update {
+    }
+
+    interface PartialUpdate{
     }
 
     interface Select {
     }
 
     interface Delete {
-    }
-
-    interface Insert {
     }
 }

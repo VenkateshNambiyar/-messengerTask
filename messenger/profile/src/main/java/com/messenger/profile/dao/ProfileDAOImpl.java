@@ -2,8 +2,9 @@ package com.messenger.profile.dao;
 
 import com.messenger.connection.DataBaseConnection;
 import com.messenger.exception.DataAlreadyExistException;
+import com.messenger.exception.ProfileNotFoundException;
 import com.messenger.exception.UserNotFoundException;
-import com.messenger.profile.model.UserDetail;
+import com.messenger.profile.model.Profile;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,23 +22,23 @@ public class ProfileDAOImpl implements ProfileDAO {
     /**
      * {@inheritDoc}
      *
-     * @param userDetail represent {@link UserDetail}
+     * @param profile represent {@link Profile}
      * @return the id of the user profile
      */
     @Override
-    public Long create(final UserDetail userDetail) {
+    public Long create(final Profile profile) {
         final StringBuilder insertQuery = new StringBuilder();
 
-        insertQuery.append("INSERT INTO USER_DETAIL(EMAIL, MOBILE_NUMBER, USER_NAME, NAME, PASSWORD)")
+        insertQuery.append("INSERT INTO PROFILE(EMAIL, MOBILE_NUMBER, USER_NAME, NAME, PASSWORD)")
                 .append(" VALUES (?, ?, ?, ?, ?) RETURNING ID");
 
         try (Connection connection = DataBaseConnection.getInstance().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(insertQuery.toString())) {
-            preparedStatement.setString(1, userDetail.getEmail());
-            preparedStatement.setString(2, userDetail.getMobileNumber());
-            preparedStatement.setString(3, userDetail.getUserName());
-            preparedStatement.setString(4, userDetail.getName());
-            preparedStatement.setString(5, userDetail.getPassword());
+            preparedStatement.setString(1, profile.getEmail().trim());
+            preparedStatement.setString(2, profile.getMobileNumber().trim());
+            preparedStatement.setString(3, profile.getUserName().trim());
+            preparedStatement.setString(4, profile.getName().trim());
+            preparedStatement.setString(5, profile.getPassword().trim());
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 return resultSet.next() ? resultSet.getLong(1) : null;
@@ -54,8 +55,8 @@ public class ProfileDAOImpl implements ProfileDAO {
      * @return the particular user profile
      */
     @Override
-    public UserDetail get(final Long id) {
-        final String selectQuery = "SELECT ID, EMAIL, MOBILE_NUMBER, USER_NAME, NAME FROM USER_DETAIL WHERE ID = ?";
+    public Profile get(final Long id) {
+        final String selectQuery = "SELECT ID, EMAIL, MOBILE_NUMBER, USER_NAME, NAME FROM PROFILE WHERE ID = ?";
 
         try (Connection connection = DataBaseConnection.getInstance().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
@@ -64,41 +65,41 @@ public class ProfileDAOImpl implements ProfileDAO {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
                 if (resultSet.next()) {
-                    final UserDetail userDetail = new UserDetail();
+                    final Profile profile = new Profile();
 
-                    userDetail.setId(resultSet.getLong("ID"));
-                    userDetail.setEmail(resultSet.getString("EMAIL"));
-                    userDetail.setMobileNumber(resultSet.getString("MOBILE_NUMBER"));
-                    userDetail.setUserName(resultSet.getString("USER_NAME"));
-                    userDetail.setName(resultSet.getString("NAME"));
+                    profile.setId(resultSet.getLong("ID"));
+                    profile.setEmail(resultSet.getString("EMAIL"));
+                    profile.setMobileNumber(resultSet.getString("MOBILE_NUMBER"));
+                    profile.setUserName(resultSet.getString("USER_NAME"));
+                    profile.setName(resultSet.getString("NAME"));
 
-                    return userDetail;
+                    return profile;
                 }
             }
             return null;
         } catch (SQLException exception) {
-            throw new UserNotFoundException("User not found");
+            throw new ProfileNotFoundException("User not found");
         }
     }
 
     /**
      * {@inheritDoc}
      *
-     * @param userDetail represent {@link UserDetail}
+     * @param profile represent {@link Profile}
      * @return the update status
      */
     @Override
-    public boolean update(final UserDetail userDetail) {
+    public boolean update(final Profile profile) {
         final StringBuilder updateQuery = new StringBuilder();
-        final String email = userDetail.getEmail();
-        final String mobileNumber = userDetail.getMobileNumber();
-        final String userName = userDetail.getUserName();
-        final String name = userDetail.getName();
-        final String password = userDetail.getPassword();
-        final Long id = userDetail.getId();
-        final UserDetail oldUserDetail = getUserDetail(id);
+        final String email = profile.getEmail();
+        final String mobileNumber = profile.getMobileNumber();
+        final String userName = profile.getUserName();
+        final String name = profile.getName();
+        final String password = profile.getPassword();
+        final Long id = profile.getId();
+        final Profile userDetail = getUserDetail(id);
 
-        updateQuery.append("UPDATE USER_DETAIL SET EMAIL = CASE WHEN EMAIL = ? IS NULL THEN ? ELSE ? END, ")
+        updateQuery.append("UPDATE PROFILE SET EMAIL = CASE WHEN EMAIL = ? IS NULL THEN ? ELSE ? END, ")
                 .append("MOBILE_NUMBER = CASE WHEN MOBILE_NUMBER = ? IS NULL THEN ? ELSE ? END, ")
                 .append("USER_NAME = CASE WHEN USER_NAME = ? IS NULL THEN ? ELSE ? END, ")
                 .append("NAME = CASE WHEN NAME = ? IS NULL THEN ? ELSE ? END, ")
@@ -107,21 +108,21 @@ public class ProfileDAOImpl implements ProfileDAO {
         try (Connection connection = DataBaseConnection.getInstance().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(updateQuery.toString())) {
 
-            if (oldUserDetail != null) {
+            if (userDetail != null) {
                 preparedStatement.setString(1, email);
-                preparedStatement.setString(2, oldUserDetail.getEmail());
+                preparedStatement.setString(2, userDetail.getEmail());
                 preparedStatement.setString(3, email);
                 preparedStatement.setString(4, mobileNumber);
-                preparedStatement.setString(5, oldUserDetail.getMobileNumber());
+                preparedStatement.setString(5, userDetail.getMobileNumber());
                 preparedStatement.setString(6, mobileNumber);
                 preparedStatement.setString(7, userName);
-                preparedStatement.setString(8, oldUserDetail.getUserName());
+                preparedStatement.setString(8, userDetail.getUserName());
                 preparedStatement.setString(9, userName);
                 preparedStatement.setString(10, name);
-                preparedStatement.setString(11, oldUserDetail.getName());
+                preparedStatement.setString(11, userDetail.getName());
                 preparedStatement.setString(12, name);
                 preparedStatement.setString(13, password);
-                preparedStatement.setString(14, oldUserDetail.getPassword());
+                preparedStatement.setString(14, userDetail.getPassword());
                 preparedStatement.setString(15, password);
                 preparedStatement.setLong(16, id);
 
@@ -139,10 +140,10 @@ public class ProfileDAOImpl implements ProfileDAO {
      * @param id represent the profile id
      * @return the user details
      */
-    private UserDetail getUserDetail(final Long id) {
+    private Profile getUserDetail(final Long id) {
         final StringBuilder selectQuery = new StringBuilder();
 
-        selectQuery.append("SELECT ID, EMAIL, MOBILE_NUMBER, USER_NAME, NAME, PASSWORD FROM USER_DETAIL ")
+        selectQuery.append("SELECT ID, EMAIL, MOBILE_NUMBER, USER_NAME, NAME, PASSWORD FROM PROFILE ")
                 .append("WHERE ID = ?");
 
         try (Connection connection = DataBaseConnection.getInstance().getConnection();
@@ -152,16 +153,16 @@ public class ProfileDAOImpl implements ProfileDAO {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
                 if (resultSet.next()) {
-                    final UserDetail oldDetail = new UserDetail();
+                    final Profile userDetail = new Profile();
 
-                    oldDetail.setId(resultSet.getLong("ID"));
-                    oldDetail.setEmail(resultSet.getString("EMAIL"));
-                    oldDetail.setMobileNumber(resultSet.getString("MOBILE_NUMBER"));
-                    oldDetail.setUserName(resultSet.getString("USER_NAME"));
-                    oldDetail.setName(resultSet.getString("NAME"));
-                    oldDetail.setPassword(resultSet.getString("PASSWORD"));
+                    userDetail.setId(resultSet.getLong("ID"));
+                    userDetail.setEmail(resultSet.getString("EMAIL"));
+                    userDetail.setMobileNumber(resultSet.getString("MOBILE_NUMBER"));
+                    userDetail.setUserName(resultSet.getString("USER_NAME"));
+                    userDetail.setName(resultSet.getString("NAME"));
+                    userDetail.setPassword(resultSet.getString("PASSWORD"));
 
-                    return oldDetail;
+                    return userDetail;
                 }
             }
             return null;
@@ -178,7 +179,7 @@ public class ProfileDAOImpl implements ProfileDAO {
      */
     @Override
     public boolean delete(final Long id) {
-        final String deleteQuery = "DELETE FROM USER_DETAIL WHERE ID = ? ";
+        final String deleteQuery = "DELETE FROM PROFILE WHERE ID = ? ";
 
         try (Connection connection = DataBaseConnection.getInstance().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery)) {
